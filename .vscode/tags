@@ -1,0 +1,120 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+BREAKFAST_DATA_LEN	../train_tfutils.py	/^BREAKFAST_DATA_LEN = 1989$/;"	kind:variable	line:15
+CASTABLE_TYPES	../models/VGG16.py	/^CASTABLE_TYPES = (tf.float16,)$/;"	kind:variable	line:7
+Config	../config.py	/^class Config(object):$/;"	kind:class	line:17
+DEFAULT_DTYPE	../models/VGG16.py	/^DEFAULT_DTYPE = tf.float32$/;"	kind:variable	line:6
+IMAGENET_MEAN	../train_tf.py	/^IMAGENET_MEAN = np.array([123.68, 116.779, 103.939])$/;"	kind:variable	line:28
+PURE_TEST	../train_tf.py	/^PURE_TEST = True$/;"	kind:variable	line:24
+VGG16.py	../models/VGG16.py	1;"	kind:file	line:1
+VGG16Model	../models/VGG16.py	/^class VGG16Model():$/;"	kind:class	line:9
+W_lstm	../train_tf.py	/^W_lstm = vs.get_variable("W1", shape=[emb_size + num_units, 4*num_units])$/;"	kind:variable	line:149
+__call__	../models/VGG16.py	/^    def __call__(self, inputs, training):$/;"	kind:member	line:44
+__init__	../config.py	/^    def __init__(self):$/;"	kind:member	line:18
+__init__	../models/VGG16.py	/^    def __init__(self, emb_size=4096, data_format=None,$/;"	kind:member	line:11
+__init__.py	../models/__init__.py	1;"	kind:file	line:1
+_assert	../config.py	/^        def _assert(cond, mesg):$/;"	kind:function	line:39
+_custom_dtype_getter	../models/VGG16.py	/^    def _custom_dtype_getter(self, getter, name, shape=None, dtype=DEFAULT_DTYPE,$/;"	kind:member	line:22
+_model_variable_scope	../models/VGG16.py	/^    def _model_variable_scope(self):$/;"	kind:member	line:31
+_preprocess_data	../models/VGG16.py	/^    def _preprocess_data(self, inputs):$/;"	kind:member	line:36
+add	../config.py	/^    def add(self, field, type, help,$/;"	kind:member	line:36
+b_lstm	../train_tf.py	/^b_lstm = vs.get_variable("b1", shape=[4*num_units], initializer=init_ops.zeros_initializer(dtype=tf.float32))$/;"	kind:variable	line:150
+batch_size	../train_tf.py	/^batch_size = 1$/;"	kind:variable	line:22
+batch_size	../train_tf.py	/^batch_size = 64$/;"	kind:variable	line:17
+batches	../train_tf.py	/^        batches = load_batches(video_list, batch_size)$/;"	kind:variable	line:219
+build_output	../models/main_model.py	/^def build_output(input, train, $/;"	kind:function	line:8
+build_output	../train_tfutils.py	/^    def build_output(inputs, train, **kwargs):$/;"	kind:function	line:131
+config.py	../config.py	1;"	kind:file	line:1
+convert	../config.py	/^    def convert(val):$/;"	kind:function	line:8
+curr_frame	../train_tf.py	/^                curr_frame = get_frames_at_step(batch, frame+1)$/;"	kind:variable	line:232
+curr_frame	../train_tf.py	/^                curr_frame = get_frames_at_step(video, frame+1)$/;"	kind:variable	line:203
+data.py	../data.py	1;"	kind:file	line:1
+emb_size	../train_tf.py	/^emb_size = 4096$/;"	kind:variable	line:97
+end_points	../train_tf.py	/^        end_points = slim.utils.convert_collection_to_dict(end_points_collection)$/;"	kind:variable	line:128
+end_points_collection	../train_tf.py	/^    end_points_collection = sc.original_name_scope + '_end_points'$/;"	kind:variable	line:106
+error_file	../train_tf.py	/^            error_file = open(error_file_path, 'a')$/;"	kind:variable	line:193
+error_file_path	../train_tf.py	/^            error_file_path = os.path.join('error_files', video[0][0]+'.txt')$/;"	kind:variable	line:192
+frame_root	../train_tf.py	/^frame_root = "\/data4\/shetw\/breakfast\/extracted_frames"$/;"	kind:variable	line:16
+frame_root	../train_tf.py	/^frame_root = "\/data4\/shetw\/breakfast\/test_extracted_frames"$/;"	kind:variable	line:21
+gen_metafile_record	../build_data/breakfast/generate_metafile.py	/^def gen_metafile_record(args):$/;"	kind:function	line:27
+generate_metafile.py	../build_data/breakfast/generate_metafile.py	1;"	kind:file	line:1
+get_config	../train_tfutils.py	/^def get_config():$/;"	kind:function	line:17
+get_feeddict	../data.py	/^def get_feeddict(image, index, name_prefix='TRAIN'):$/;"	kind:function	line:7
+get_frames_at_step	../train_tf.py	/^def get_frames_at_step(batch, step):$/;"	kind:function	line:46
+get_loss_lr_opt_params_from_arg	../train_tfutils.py	/^def get_loss_lr_opt_params_from_arg(args):$/;"	kind:function	line:93
+get_lr_from_boundary_and_ramp_up	../train_tfutils.py	/^def get_lr_from_boundary_and_ramp_up($/;"	kind:function	line:70
+get_model_func_params	../train_tfutils.py	/^def get_model_func_params(args):$/;"	kind:function	line:48
+get_params_from_arg	../train_tfutils.py	/^def get_params_from_arg(args):$/;"	kind:function	line:124
+get_parser	../build_data/breakfast/generate_metafile.py	/^def get_parser():$/;"	kind:function	line:10
+get_placeholders	../data.py	/^def get_placeholders(batch_size, num_frames=1500, $/;"	kind:function	line:29
+get_train_data_param_from_arg	../train_tfutils.py	/^def get_train_data_param_from_arg(args):$/;"	kind:function	line:59
+get_train_dataloader	../data.py	/^def get_train_dataloader(args, dataset):$/;"	kind:function	line:17
+get_train_pt_loader	../data.py	/^def get_train_pt_loader(args):$/;"	kind:function	line:24
+get_train_pt_loader_from_arg	../train_tfutils.py	/^def get_train_pt_loader_from_arg(args):$/;"	kind:function	line:55
+global_saver	../train_tf.py	/^global_saver = tf.train.Saver()$/;"	kind:variable	line:183
+init	../train_tf.py	/^init = tf.global_variables_initializer()$/;"	kind:variable	line:181
+input_frame	../train_tf.py	/^input_frame = tf.placeholder(tf.float32, (None, 224, 224, 3), name='input_frame')$/;"	kind:variable	line:100
+learning_rate	../train_tf.py	/^learning_rate = tf.placeholder(tf.float32, [])$/;"	kind:variable	line:178
+load_batches	../train_tf.py	/^def load_batches(video_list, batch_size):$/;"	kind:function	line:38
+load_setting_func	../config.py	/^    def load_setting_func(self, setting_func_name):$/;"	kind:member	line:93
+loss_func	../train_tfutils.py	/^def loss_func(output, *args, **kwargs):$/;"	kind:function	line:67
+losses	../train_tf.py	/^        losses = []$/;"	kind:variable	line:220
+lr	../train_tf.py	/^lr = 1e-6$/;"	kind:variable	line:177
+lstm_cell	../train_tf.py	/^def lstm_cell(W, b, forget_bias, inputs, state):$/;"	kind:function	line:69
+main	../build_data/breakfast/generate_metafile.py	/^def main():$/;"	kind:function	line:38
+main	../train_tfutils.py	/^def main():$/;"	kind:function	line:210
+main_model.py	../models/main_model.py	1;"	kind:file	line:1
+meta_path	../train_tf.py	/^meta_path = "\/data4\/shetw\/breakfast\/metafiles\/test_videos_metafile.txt"$/;"	kind:variable	line:20
+meta_path	../train_tf.py	/^meta_path = "\/data4\/shetw\/breakfast\/metafiles\/videos_metafile.txt"$/;"	kind:variable	line:15
+named_choices	../config.py	/^def named_choices(choices):$/;"	kind:function	line:7
+net	../train_tf.py	/^        net = slim.conv2d(net, emb_size, [1, 1], scope='fc7')$/;"	kind:variable	line:125
+net	../train_tf.py	/^        net = slim.conv2d(net, emb_size, [7, 7], padding='VALID', scope='fc6')$/;"	kind:variable	line:122
+net	../train_tf.py	/^        net = slim.dropout(net, 0.8, is_training=train,$/;"	kind:variable	line:123
+net	../train_tf.py	/^        net = slim.max_pool2d(net, [2, 2], scope='pool1')$/;"	kind:variable	line:111
+net	../train_tf.py	/^        net = slim.max_pool2d(net, [2, 2], scope='pool2')$/;"	kind:variable	line:113
+net	../train_tf.py	/^        net = slim.max_pool2d(net, [2, 2], scope='pool3')$/;"	kind:variable	line:115
+net	../train_tf.py	/^        net = slim.max_pool2d(net, [2, 2], scope='pool4')$/;"	kind:variable	line:117
+net	../train_tf.py	/^        net = slim.max_pool2d(net, [2, 2], scope='pool5')$/;"	kind:variable	line:119
+net	../train_tf.py	/^        net = slim.repeat(input_frame, 2, slim.conv2d, 64, [3, 3], scope='conv1')$/;"	kind:variable	line:110
+net	../train_tf.py	/^        net = slim.repeat(net, 2, slim.conv2d, 128, [3, 3], scope='conv2')$/;"	kind:variable	line:112
+net	../train_tf.py	/^        net = slim.repeat(net, 3, slim.conv2d, 256, [3, 3], scope='conv3')$/;"	kind:variable	line:114
+net	../train_tf.py	/^        net = slim.repeat(net, 3, slim.conv2d, 512, [3, 3], scope='conv4')$/;"	kind:variable	line:116
+net	../train_tf.py	/^        net = slim.repeat(net, 3, slim.conv2d, 512, [3, 3], scope='conv5')$/;"	kind:variable	line:118
+num_epochs	../train_tf.py	/^num_epochs = 10$/;"	kind:variable	line:26
+num_frames	../train_tf.py	/^num_frames = 1500$/;"	kind:variable	line:27
+num_units	../train_tf.py	/^num_units = 4096$/;"	kind:variable	line:96
+outputs_collections	../train_tf.py	/^                                            outputs_collections=end_points_collection):$/;"	kind:variable	line:109
+parse_args	../config.py	/^    def parse_args(self, *p_args, **p_kwargs):$/;"	kind:member	line:105
+parse_config_file	../config.py	/^    def parse_config_file(self, config_str):$/;"	kind:member	line:66
+prev_emb	../train_tf.py	/^prev_emb = tf.placeholder(tf.float32, (None, num_units), name='prev_emb')$/;"	kind:variable	line:101
+prev_emb_np	../train_tf.py	/^                prev_emb_np = new_emb_np$/;"	kind:variable	line:212
+prev_emb_np	../train_tf.py	/^                prev_emb_np = new_emb_np$/;"	kind:variable	line:241
+prev_emb_np	../train_tf.py	/^            prev_emb_np = sess.run(vgg_emb, feed_dict={input_frame: prev_frame_np})$/;"	kind:variable	line:199
+prev_emb_np	../train_tf.py	/^            prev_emb_np = sess.run(vgg_emb, feed_dict={input_frame: prev_frame_np})$/;"	kind:variable	line:230
+prev_frame_np	../train_tf.py	/^            prev_frame_np = get_frames_at_step(batch, 0)$/;"	kind:variable	line:228
+prev_frame_np	../train_tf.py	/^            prev_frame_np = get_frames_at_step(video, 0)$/;"	kind:variable	line:198
+prev_state	../train_tf.py	/^prev_state = tf.placeholder(tf.float32, (None, num_units), name='lstm_state')$/;"	kind:variable	line:102
+prev_state	../train_tf.py	/^prev_state = tf.placeholder(tf.float32, [None, 2*num_units], name="state")$/;"	kind:variable	line:148
+prev_state_np	../train_tf.py	/^                            size=(batch_size, 2*num_units))$/;"	kind:variable	line:197
+prev_state_np	../train_tf.py	/^                            size=(batch_size, 2*num_units))$/;"	kind:variable	line:227
+prev_state_np	../train_tf.py	/^                prev_state_np = new_state_np$/;"	kind:variable	line:213
+prev_state_np	../train_tf.py	/^                prev_state_np = new_state_np$/;"	kind:variable	line:242
+read_from_metafile	../train_tf.py	/^def read_from_metafile(meta_path):$/;"	kind:function	line:31
+scope	../train_tf.py	/^                                            scope='dropout6')$/;"	kind:variable	line:124
+slim	../models/main_model.py	/^slim = tf.contrib.slim$/;"	kind:variable	line:6
+sseLoss	../train_tf.py	/^sseLoss = tf.reduce_mean(sseLoss1, axis=1)$/;"	kind:variable	line:168
+sseLoss1	../train_tf.py	/^sseLoss1 = tf.square(tf.subtract(vgg_emb, pred_emb))$/;"	kind:variable	line:165
+strip_comments	../config.py	/^        def strip_comments(s):$/;"	kind:function	line:76
+train	../train_tf.py	/^train = False$/;"	kind:variable	line:98
+train_loop	../train_tfutils.py	/^        def train_loop(sess, train_targets, **params):$/;"	kind:function	line:157
+train_op	../train_tf.py	/^train_op = tf.train.GradientDescentOptimizer(learning_rate).minimize(sseLoss)$/;"	kind:variable	line:179
+train_tf.py	../train_tf.py	1;"	kind:file	line:1
+train_tfutils.py	../train_tfutils.py	1;"	kind:file	line:1
+vgg_emb	../train_tf.py	/^        vgg_emb = tf.reshape(net, (-1, emb_size)) $/;"	kind:variable	line:126
+vgg_saver	../train_tf.py	/^vgg_saver = tf.train.Saver(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope="vgg_16"))$/;"	kind:variable	line:182
+video_list	../train_tf.py	/^video_list = read_from_metafile(meta_path)$/;"	kind:variable	line:93
+videos	../train_tf.py	/^        videos = load_batches(video_list, 1)$/;"	kind:variable	line:189
