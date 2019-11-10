@@ -27,4 +27,16 @@ def ppf_pretrained_vgg():
     args['batch_size'] = 40
     return args
     
+
+def ppf_pretrained_vgg_lr8():
+    args = {}
+    args = ppf_basic(args)
+    args = batch_size(args)
+
+    args['exp_id'] = 'ppf_lr8'
+    args['from_ckpt'] = '/home/shetw/projects/EventSegmentation/saved_models/vgg_16.ckpt'
+    args['batch_size'] = 40
+    args['init_lr'] = 1e-8
+    return args
+    
     
