@@ -63,10 +63,13 @@ def ppf_pretrained_vgg_lr7():
     args = ppf_basic(args)
     args = batch_size(args)
 
-    args['exp_id'] = 'ppf_lr6'
+    args['exp_id'] = 'ppf_lr7'
     args['from_ckpt'] = '/data4/shetw/breakfast/saved_models/vgg_16.ckpt'
     args['batch_size'] = 40
     args['init_lr'] = 1e-7
+    # Test multi-gpu
+    # args['from_ckpt'] = '/data4/shetw/breakfast/saved_models/Zacks_LSTM_AL_S1_1'
+    # args['shuffle'] = False
     return args    
 
 def ppf_train_infant(): # Node08-1
