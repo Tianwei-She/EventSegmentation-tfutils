@@ -15,15 +15,15 @@ def batch_size(args):
 
 def infant_data(args):
     args['col_name'] = 'infant'
-    args['data_len'] = 1420
-    args['meta_path'] = '/data/shetw/infant_headcam/metafiles/infant_3min_ppf.meta'
+    args['data_len'] = 409
+    args['meta_path'] = '/data/shetw/infant_headcam/metafiles/infant_train_ppf.meta'
     args['frame_root'] = '/data/shetw/infant_headcam/jpgs_extracted'
     args['num_frames'] = 22500 # 15mins in 25fps
     args['file_tmpl'] = "{:06d}.jpg"
     args['flip_frame'] = True
     return args
 
-def ppf_pretrained_vgg():
+def ppf_pretrained_vgg(): # Node07-1
     args = {}
     args = ppf_basic(args)
     args = batch_size(args)
@@ -36,7 +36,7 @@ def ppf_pretrained_vgg():
     args['batch_size'] = 40
     return args
     
-def ppf_pretrained_vgg_lr8():
+def ppf_pretrained_vgg_lr8(): # Node07-2
     args = {}
     args = ppf_basic(args)
     args = batch_size(args)
@@ -46,19 +46,30 @@ def ppf_pretrained_vgg_lr8():
     args['batch_size'] = 40
     args['init_lr'] = 1e-8
     return args
-    
-def ppf_finetune_infant():
+
+def ppf_pretrained_vgg_lr6(): # Node08-3
     args = {}
     args = ppf_basic(args)
     args = batch_size(args)
-    args = infant_data(args)
 
-    args['exp_id'] = 'finetune'
-    args['from_ckpt'] = '/data4/shetw/breakfast/saved_models/Zacks_LSTM_AL_S1_1'
+    args['exp_id'] = 'ppf_lr6'
+    args['from_ckpt'] = '/data4/shetw/breakfast/saved_models/vgg_16.ckpt'
     args['batch_size'] = 40
+    args['init_lr'] = 1e-6
     return args
+    
+def ppf_pretrained_vgg_lr7():
+    args = {}
+    args = ppf_basic(args)
+    args = batch_size(args)
 
-def ppf_train_infant():
+    args['exp_id'] = 'ppf_lr6'
+    args['from_ckpt'] = '/data4/shetw/breakfast/saved_models/vgg_16.ckpt'
+    args['batch_size'] = 40
+    args['init_lr'] = 1e-7
+    return args    
+
+def ppf_train_infant(): # Node08-1
     args = {}
     args = ppf_basic(args)
     args = batch_size(args)
@@ -67,4 +78,16 @@ def ppf_train_infant():
     args['exp_id'] = 'train'
     args['from_ckpt'] = '/data4/shetw/breakfast/saved_models/vgg_16.ckpt'
     args['batch_size'] = 40
+    return args
+
+def ppf_train_infant_lr7(): # Node08-2
+    args = {}
+    args = ppf_basic(args)
+    args = batch_size(args)
+    args = infant_data(args)
+
+    args['exp_id'] = 'train'
+    args['from_ckpt'] = '/data4/shetw/breakfast/saved_models/vgg_16.ckpt'
+    args['batch_size'] = 40
+    args['init_lr'] = 1e-7
     return args
