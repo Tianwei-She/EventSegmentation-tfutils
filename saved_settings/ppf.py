@@ -86,7 +86,7 @@ def ppf_train_infant_lr7(): # Node08-2
     args = batch_size(args)
     args = infant_data(args)
 
-    args['exp_id'] = 'train'
+    args['exp_id'] = 'train_lr7'
     args['from_ckpt'] = '/data4/shetw/breakfast/saved_models/vgg_16.ckpt'
     args['batch_size'] = 40
     args['init_lr'] = 1e-7
