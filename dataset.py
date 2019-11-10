@@ -11,13 +11,15 @@ IMAGENET_MEAN = np.array([123.68, 116.779, 103.939])
 class FrameDataset():
     def __init__(
             self, frame_root, meta_path, 
-            batch_size, num_frames, crop_size=224, shuffle=False):
+            batch_size, num_frames, flip_frame=False, file_tmpl="Frame_{:06d}.jpg", crop_size=224, shuffle=False):
         
         self.frame_root = frame_root
         self.meta_path = meta_path
         self.num_frames = num_frames
         self.batch_size = batch_size
         self.crop_size = crop_size
+        self.flip_frame = flip_frame # Flip top-bottom for infant videos
+        self.file_tmpl = file_tmpl
         self.shuffle = shuffle
         self.num_batch_per_epoch = None
         self.video_list = self._parse_list() # A list of (index, vd_name, vd_length)
@@ -45,11 +47,13 @@ class FrameDataset():
             vd_index, vd_name, vd_length = video
             real_step = step % vd_length
             frame_path = os.path.join(self.frame_root, vd_name, 
-                                        "Frame_{:06d}.jpg".format(real_step+1))
+                                        self.file_tmpl.format(real_step+1))
             
             # Preprocessing
             image = Image.open(frame_path)
             image = image.resize((self.crop_size, self.crop_size), Image.ANTIALIAS)
+            if self.flip_frame:
+                image = image.transpose(Image.FLIP_TOP_BOTTOM)
             image = np.array(image)
             image = np.subtract(image, IMAGENET_MEAN)
             

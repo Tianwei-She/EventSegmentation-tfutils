@@ -16,7 +16,7 @@ from dataset import FrameDataset
 import pdb
 
 BREAKFAST_DATA_LEN = 1989
-TRAIN_WINDOW_SIZE = 5
+# TRAIN_WINDOW_SIZE = 5
 
 
 def get_config():
@@ -57,6 +57,10 @@ def get_config():
     cfg.add('num_frames', type=int, default=1500,
             help='Number of frames fed into the LSTM')
     cfg.add('crop_size', type=int, default=224,
+            help='Size of the cropped input')
+    cfg.add('flip_frame', type=bool, default=False,
+            help='Whether to flip frames or not (for infant videos)')
+    cfg.add('file_tmpl', type=str, default="Frame_{:06d}.jpg",
             help='Size of the cropped input')
     cfg.add('shuffle', type=bool, default=True,
             help='Shuffle the dataset or not during training')
@@ -286,7 +290,7 @@ def get_params_from_arg(args):
         # Data enumerator 
         train_frame_dataset = FrameDataset(args.frame_root, args.meta_path, \
                                      args.batch_size, args.num_frames,
-                                     shuffle=args.shuffle)
+                                     file_tmpl=args.file_tmpl, shuffle=args.shuffle)
         num_steps_per_epoch = train_frame_dataset.num_batch_per_epoch * args.num_frames
         train_frame_generator = train_frame_dataset.batch_of_frames_generator()
         train_frame_enumerator = [enumerate(train_frame_generator)]
