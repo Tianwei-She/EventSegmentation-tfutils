@@ -14,19 +14,17 @@ def batch_size(args):
     return args
 
 
-def ppf():
+def ppf_pretrained_vgg():
     args = {}
     args = ppf_basic(args)
     args = batch_size(args)
 
     args['exp_id'] = 'ppf_test'
-    # args['from_ckpt'] = '/home/shetw/projects/EventSegmentation/saved_models/vgg_16.ckpt'
+    args['from_ckpt'] = '/home/shetw/projects/EventSegmentation/saved_models/vgg_16.ckpt'
     # For testing my reimplementation    
-    args['from_ckpt'] = '/home/shetw/projects/EventSegmentation/saved_models/Zacks_LSTM_AL_S1_1'
-    args['shuffle'] = False
-    args['batch_size'] = 64
-
-
+    # args['from_ckpt'] = '/home/shetw/projects/EventSegmentation/saved_models/Zacks_LSTM_AL_S1_1'
+    # args['shuffle'] = False
+    args['batch_size'] = 40
     return args
     
     

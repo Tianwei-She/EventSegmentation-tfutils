@@ -2,7 +2,7 @@ from __future__ import division, print_function, absolute_import
 import os, sys
 import numpy as np
 import tensorflow as tf
-
+import collections
 import argparse
 
 from tfutils import base, optimizer
@@ -16,13 +16,15 @@ from dataset import FrameDataset
 import pdb
 
 BREAKFAST_DATA_LEN = 1989
+TRAIN_WINDOW_SIZE = 5
+
 
 def get_config():
     """TODO: Modify config.py"""
     cfg = config.Config()
     cfg.add('exp_id', type=str, required=True,
             help='Name of experiment ID')
-    cfg.add('batch_size', type=int, default=64,
+    cfg.add('batch_size', type=int, default=32,
             help='Training batch size')
     cfg.add('test_batch_size', type=int, default=16,
             help='Testing batch size')
@@ -43,6 +45,9 @@ def get_config():
             help='Size of the embedding')
     cfg.add('num_units', type=int, default=4096,
             help='Number of units in LSTM')
+    cfg.add('train_window_size', type=int, default=5,
+            help='Window size for adaptive learning')
+    
     
     # Data
     cfg.add('meta_path', type=str, default='/data4/shetw/breakfast/metafiles/videos_train_split1.meta',
@@ -91,8 +96,12 @@ def get_config():
             help='The ckpt file path to be loaded from')
     
     # Learning rate
-    cfg.add('init_lr', type=float, default=1e-6,
+    cfg.add('init_lr', type=float, default=5e-9,
             help='Initial learning rate')
+    cfg.add('big_lr', type=float, default=1e-8,
+            help='Bigger learning rate in adaptive training')
+    cfg.add('small_lr', type=float, default=1e-9,
+            help='Smaller learning rate in adaptive training')
     cfg.add('target_lr', type=float, default=None,
             help='Target leraning rate for ramping up')
     cfg.add('lr_boundaries', type=str, default=None,
@@ -198,9 +207,26 @@ def get_lr_from_boundary_and_ramp_up(
     return curr_lr
 """
 
-def get_adaptive_learning_rate(global_step):
+# online_loss = collections.deque(maxlen=TRAIN_WINDOW_SIZE) # Keep the running average of the losses
+def get_adaptive_learning_rate(global_step, init_lr, big_lr, small_lr):
     """ TODO: Implement adaptive learning """
-    return tf.constant(1e-5, dtype=tf.float32)
+    """ TODO: Check if the learning rate assignment is done after the loss is updated"""
+    """
+    curr_loss = tf.get_default_graph().get_tensor_by_name('mse_loss:0')
+    if len(online_loss) == 0:
+        return tf.constant(init_lr, dtype=tf.float32)
+    else:
+        avg_loss = np.mean(online_loss)
+        online_loss.append(curr_loss)
+        if curr_loss > avg_loss:
+            print(big_lr, curr_loss, avg_loss, online_loss)
+            return tf.constant(big_lr, dtype=tf.float32)
+        else:
+            print(small_lr, curr_loss, avg_loss, online_loss)
+            return tf.constant(small_lr, dtype=tf.float32)
+    """
+    return tf.constant(init_lr, dtype=tf.float32)
+
 
 def get_loss_lr_opt_params_from_arg(args):
 
@@ -208,13 +234,15 @@ def get_loss_lr_opt_params_from_arg(args):
         'pred_targets': [],
         'loss_func': loss_func,
     }
-    # TODO: agg_func?
 
     # learning_rate_params: build the learning rate
     # For now, just stay the same
     """ TODO: Need to change to adaptive learning """
     learning_rate_params = {
             'func': get_adaptive_learning_rate,
+            'init_lr': args.init_lr,
+            'small_lr': args.small_lr,
+            'big_lr': args.big_lr,
             }
 
     # optimizer_params: use tfutils optimizer,
@@ -268,7 +296,7 @@ def get_params_from_arg(args):
         
         prev_emb_np, prev_state_np = [], []
         # Train_loop
-        def train_loop(sess, train_targets, **params):
+        def train_loop(sess, train_targets, num_minibatches=1, **params):
             global_step_vars = [v for v in tf.global_variables() \
                                 if 'global_step' in v.name]
             assert len(global_step_vars) == 1
@@ -306,11 +334,9 @@ def get_params_from_arg(args):
             # TODO: Learning rate for adaptive learning 
             feed_dict = data.get_feeddict(image, index, \
                                           prev_emb_np[0], prev_state_np[0])
-            pdb.set_trace()
             sess_res = sess.run(train_targets+loss_node+vgg_emb_node+lstm_state_node, feed_dict=feed_dict)
             _, vgg_emb, lstm_state = sess_res[-3], sess_res[-2], sess_res[-1] # _ is the pred errors [bs]
-            sess_res = sess_res[0]
-            pdb.set_trace()
+            sess_res = [sess_res[0]]
             prev_emb_np[0], prev_state_np[0] = vgg_emb, lstm_state   
             return sess_res
             

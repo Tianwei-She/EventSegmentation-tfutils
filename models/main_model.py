@@ -93,8 +93,12 @@ def build_output(inputs, train,
     # Loss
     sseLoss1 = tf.square(tf.subtract(vgg_emb, pred_emb))
     sseLoss = tf.reduce_mean(sseLoss1, axis=1)
+
+    # Loss value node for adaptive learning
+    # loss_var = tf.Variable(0, name='mse_loss', trainable=False, dtype=tf.float32)
+    # loss_assign = tf.assign(loss_var, sseLoss)
     
     ret_dict = {
         'loss': sseLoss,
     }
-    return ret_dict, logged_cfg, vgg_emb, new_state, sseLoss
+    return ret_dict, logged_cfg, vgg_emb, new_state, sseLoss # , loss_assign

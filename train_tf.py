@@ -15,7 +15,7 @@ import pdb
 
 meta_path = "/data4/shetw/breakfast/metafiles/videos_train_split1.meta"
 frame_root = "/data4/shetw/breakfast/extracted_frames"
-batch_size = 64
+batch_size = 32
 
 """
 meta_path = "/data4/shetw/breakfast/metafiles/test_videos_metafile.txt"
@@ -57,7 +57,6 @@ def get_frames_at_step(batch, step):
     """
     frame_batch_list = []
     for video in batch:
-        # pdb.set_trace()
         vd_name, vd_length = video
         real_step = step % vd_length
         frame_path = os.path.join(frame_root, vd_name, 
@@ -134,7 +133,6 @@ with tf.variable_scope('vgg_16', reuse=tf.AUTO_REUSE) as sc:
 with slim.arg_scope(vgg.vgg_arg_scope()):
     vgg_emb, _ = vgg.vgg_16(input_frame, num_classes=None, is_training=True)
     # Check the shape of the VGG output
-    pdb.set_trace()
 """
 
 # LSTM
@@ -178,7 +176,10 @@ Args:
 """
 lr = 1e-5
 learning_rate = tf.placeholder(tf.float32, [])
-train_op = tf.train.GradientDescentOptimizer(learning_rate).minimize(sseLoss)
+# train_op = tf.train.GradientDescentOptimizer(learning_rate).minimize(sseLoss)
+optimizer = tf.train.GradientDescentOptimizer(learning_rate)
+gradients_node = optimizer.compute_gradients(tf.reduce_mean(sseLoss))
+train_op = optimizer.apply_gradients(gradients_node)
 
 init = tf.global_variables_initializer()
 vgg_saver = tf.train.Saver(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope="vgg_16"))
@@ -200,7 +201,6 @@ with tf.Session() as sess:
             prev_frame_np = get_frames_at_step(video, 0)
             prev_emb_np = sess.run(vgg_emb, feed_dict={input_frame: prev_frame_np})
 
-            # import pdb; pdb.set_trace()
             for frame in tqdm(range(num_frames-1)):
                 curr_frame = get_frames_at_step(video, frame+1)
                 loss, new_emb_np, new_state_np = sess.run([sseLoss, vgg_emb, new_state], \
@@ -210,7 +210,7 @@ with tf.Session() as sess:
                                                         prev_state: prev_state_np,
                                                         learning_rate: lr
                                                     })
-                pdb.set_trace()
+                # pdb.set_trace()
                 prev_emb_np = new_emb_np
                 prev_state_np = new_state_np
                 print("Batch {} - Frame {}: Loss {}".format(video_i, frame+1, np.mean(loss)))
@@ -234,15 +234,14 @@ with tf.Session() as sess:
 
             for frame in tqdm(range(num_frames-1)):
                 curr_frame = get_frames_at_step(batch, frame+1)
-                import pdb; pdb.set_trace()
-                _, loss, new_emb_np, new_state_np = sess.run([train_op, sseLoss, vgg_emb, new_state], \
+                _, gradients, loss, new_emb_np, new_state_np = sess.run([train_op, gradients_node, sseLoss, vgg_emb, new_state], \
                                                     feed_dict={
                                                         input_frame: curr_frame,
                                                         prev_emb: prev_emb_np,
                                                         prev_state: prev_state_np,
                                                         learning_rate: lr
                                                     })
-                pdb.set_trace()
+                # pdb.set_trace()
                 prev_emb_np = new_emb_np
                 prev_state_np = new_state_np
                 print("Batch {} - Frame {}: Loss {}".format(batch_i, frame+1, np.mean(loss)))
