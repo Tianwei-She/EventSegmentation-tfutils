@@ -24,6 +24,30 @@ def infant_data(args):
     args['flip_frame'] = True
     return args
 
+def ppf_test_lr6(): # Node07-1
+    args = {}
+    args = ppf_basic(args)
+    args = batch_size(args)
+
+    args['col_name'] = 'breakfast_loss'
+    args['exp_id'] = 'ppf_test_sample_lr6'
+    args['load_exp'] = 'ppf/breakfast/ppf_lr6'
+    args['pure_test'] = True
+    args['test_meta_path'] = '/data4/shetw/breakfast/metafiles/videos_test_split1_sample.meta'
+    return args
+
+def ppf_test_lr7(): # Node07-4
+    args = {}
+    args = ppf_basic(args)
+    args = batch_size(args)
+
+    args['col_name'] = 'breakfast_loss'
+    args['exp_id'] = 'ppf_test_sample_lr7'
+    args['load_exp'] = 'ppf/breakfast/ppf_lr7'
+    args['pure_test'] = True
+    args['test_meta_path'] = '/data4/shetw/breakfast/metafiles/videos_test_split1_sample.meta'
+    return args
+
 def ppf_pretrained_vgg(): # Node07-1
     args = {}
     args = ppf_basic(args)
@@ -59,13 +83,13 @@ def ppf_pretrained_vgg_lr6(): # Node08-3
     args['init_lr'] = 1e-6
     return args
     
-def ppf_pretrained_vgg_lr7(): # Node07-4
+def ppf_pretrained_vgg_lr7(): # Node07-4 - saving ckpt error at 51000 step
     args = {}
     args = ppf_basic(args)
     args = batch_size(args)
 
     args['exp_id'] = 'ppf_lr7'
-    args['from_ckpt'] = '/data4/shetw/breakfast/saved_models/vgg_16.ckpt'
+    # args['from_ckpt'] = '/data4/shetw/breakfast/saved_models/vgg_16.ckpt'
     args['batch_size'] = 128
     args['init_lr'] = 1e-7
     # Test multi-gpu

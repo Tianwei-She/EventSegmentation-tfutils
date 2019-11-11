@@ -100,5 +100,6 @@ def build_output(inputs, train,
     
     ret_dict = {
         'loss': sseLoss,
+        'index': inputs['index'],
     }
     return ret_dict, logged_cfg, vgg_emb, new_state, sseLoss # , loss_assign

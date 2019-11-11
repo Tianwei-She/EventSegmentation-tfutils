@@ -108,3 +108,9 @@ saved_models/
 
 # Error files
 error_files/
+
+# vscode
+.vscode/
+
+# Tmp foldel
+tmp/

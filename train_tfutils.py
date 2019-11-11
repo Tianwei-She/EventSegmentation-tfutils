@@ -15,7 +15,8 @@ from dataset import FrameDataset
 
 import pdb
 
-BREAKFAST_DATA_LEN = 1989
+BREAKFAST_TRAIN_LEN = 1380
+BREAKFAST_TEST_LEN = 609
 # TRAIN_WINDOW_SIZE = 5
 
 
@@ -26,17 +27,19 @@ def get_config():
             help='Name of experiment ID')
     cfg.add('batch_size', type=int, default=32,
             help='Training batch size')
-    cfg.add('test_batch_size', type=int, default=16,
-            help='Testing batch size')
     cfg.add('gpu', type=str, required=True,
             help='Value for CUDA_VISIBLE_DEVICES')
     # Not sure what this is used for
     cfg.add('gpu_offset', type=int, default=0,
             help='GPU offset, useful for KMeans?')
-    cfg.add('data_len', type=int, default=BREAKFAST_DATA_LEN,
-            help='Total number of videos in the input dataset')
+    cfg.add('data_len', type=int, default=BREAKFAST_TRAIN_LEN,
+            help='Total number of videos in the training set')
+    cfg.add('val_len', type=int, default=BREAKFAST_TEST_LEN,
+            help='Total number of videos in the test set')
     cfg.add('pure_test', type=bool, default=False,
             help='Whether just testing.')
+    cfg.add('pure_train', type=bool, default=False,
+            help='Whether just training.')
     
     # Model
     cfg.add('model_type', type=str, default='vgg_16',
@@ -52,6 +55,8 @@ def get_config():
     # Data
     cfg.add('meta_path', type=str, default='/data4/shetw/breakfast/metafiles/videos_train_split1.meta',
             help='Path to metafile')
+    cfg.add('test_meta_path', type=str, default='/data4/shetw/breakfast/metafiles/videos_test_split1.meta',
+            help='Path to test metafile')
     cfg.add('frame_root', type=str, default='/data4/shetw/breakfast/extracted_frames',
             help='Root path to frames')
     cfg.add('num_frames', type=int, default=1500,
@@ -184,6 +189,15 @@ def get_train_data_param_from_arg(args):
             }
     return train_data_param
 
+def get_valid_data_param_from_arg(args):
+    if args.model_type == 'vgg_16':
+        train_data_param = {
+            'func': data.get_placeholders,
+            'batch_size': 1, # For now only support a batch size of 1 for testing
+            'name_prefix': 'VALID',
+            }
+    return train_data_param
+
 def loss_func(output, *args, **kwargs):
     return output['loss']
 """
@@ -256,6 +270,21 @@ def get_loss_lr_opt_params_from_arg(args):
             }
     return loss_params, learning_rate_params, optimizer_params
 
+def valid_get_pred_error_func(inputs, output):
+    return {
+        'loss': output['loss'],
+        'index': output['index']
+        }
+
+def final_agg_emb(x):
+    return x
+
+def online_agg_emb(agg_res, res, step):
+    if agg_res is None:
+            return res
+    agg_res['loss'] = np.concatenate((agg_res['loss'], res['loss']), axis=0)
+    agg_res['index'] = np.concatenate((agg_res['index'], res['index']), axis=0)
+    return agg_res
 
 def get_params_from_arg(args):
     
@@ -317,11 +346,11 @@ def get_params_from_arg(args):
 
             # Update the data_loader for each epoch
             if curr_global_step % num_steps_per_epoch == 0:
-                print("====== Epoch {} ======".format(int(global_step / num_steps_per_epoch)))
+                print("====== Epoch {} ======".format(int(curr_global_step / num_steps_per_epoch)))
                 if curr_global_step != 0:
                     train_frame_enumerator.pop()
+                    train_frame_generator = train_frame_dataset.batch_of_frames_generator()
                     train_frame_enumerator.append(enumerate(train_frame_generator))
-                    pdb.set_trace() # Check why StopIteration after 1 epoch
             
             # Initialization of prev_emb & prev_state 
             # at the beginning of each batch
@@ -354,9 +383,6 @@ def get_params_from_arg(args):
             assert curr_global_step % args.num_frames + 1 == step
             # Feed input data and run
             # TODO: Learning rate for adaptive learning 
-            # Test multi-gpu
-            # feed_dict = data.get_feeddict(image, index, \
-            #                              prev_emb_np[0], prev_state_np[0])
             feed_dict = data.get_feeddict(image, index, \
                                           prev_emb_np[0], prev_state_np[0])
             sess_res = sess.run(train_targets+loss_node+vgg_emb_node+lstm_state_node, feed_dict=feed_dict)
@@ -382,9 +408,86 @@ def get_params_from_arg(args):
 
     
     # === Validation params ===
-    """ TODO """  
-    validation_params = {}
+    if args.pure_train:
+          validation_params = {}
+    else:
+        val_data_param = get_valid_data_param_from_arg(args)
+        val_targets = {
+            'func': valid_get_pred_error_func
+        }
 
+        valid_frame_dataset = FrameDataset(args.frame_root, args.test_meta_path,
+                                        1, None, flip_frame = args.flip_frame, 
+                                        file_tmpl=args.file_tmpl, 
+                                        crop_size=args.crop_size,
+                                        shuffle=False)
+        val_step_num = valid_frame_dataset.valid_num_step()     
+        valid_frame_generator = valid_frame_dataset.valid_single_frame_generator()
+        valid_frame_enumerator = [enumerate(valid_frame_generator)]
+        
+        # val_counter = [0]
+        is_new_video = [True]
+        prev_emb_np, prev_state_np = [], []
+        def valid_loop(sess, target):
+            # NOTE: only a batch size of 1 is supported for testing.
+            # NOTE: multi-gpu is not supported 
+            # val_counter[0] += 1
+            """ 
+            # Only run testing for 1 epoch
+            if val_counter[0] % val_step_num == 0:
+                valid_frame_enumerator.pop()
+                valid_frame_generator = valid_frame_dataset.valid_single_frame_generator()
+                valid_frame_enumerator.append(enumerate(valid_frame_generator))
+            """
+
+            # Initialization of prev_emb & prev_state 
+            # at the beginning of each video
+            if is_new_video[0]:
+                _, (image, index, step, is_new_video[0]) = valid_frame_enumerator[0].next()
+                assert step == 0
+                assert len(prev_state_np) <= 1
+                if len(prev_state_np) == 1:
+                    prev_state_np.pop()
+                
+                np.random.seed(6) # Test my reimplementation
+                prev_state_np.append(np.random.uniform(low=-0.5, high=0.5, \
+                                    size=(1, 2*args.num_units)))
+                
+                assert len(prev_emb_np) <= 1
+                if len(prev_emb_np) == 1:
+                    prev_emb_np.pop()
+                vgg_feed_dict = data.get_vgg_feeddict(image, index, name_prefix='VALID')            
+                prev_emb_np.append(sess.run(vgg_emb_node[0], feed_dict=vgg_feed_dict)) 
+            
+            # Normal train step  
+            # Get data from the enumerator
+            _, (image, index, step, is_new_video[0]) = valid_frame_enumerator[0].next()
+            # Feed input data and run
+            feed_dict = data.get_feeddict(image, index,
+                                          prev_emb_np[0], prev_state_np[0], 
+                                          name_prefix='VALID')
+            sess_res = sess.run([target]+vgg_emb_node+lstm_state_node, feed_dict=feed_dict)
+            vgg_emb, lstm_state = sess_res[-2], sess_res[-1]
+            sess_res = sess_res[0]
+            prev_emb_np[0], prev_state_np[0] = vgg_emb, lstm_state   
+            return sess_res
+
+        pred_error_val_param = {
+            'data_params': val_data_param,
+            'queue_params': None,
+            'targets': val_targets,
+            'num_steps': val_step_num,
+            'agg_func': final_agg_emb,
+            'online_agg_func': online_agg_emb,
+            'valid_loop': {'func': valid_loop}
+        }
+
+        save_to_gfs = ['loss', 'index']
+        save_params['save_to_gfs'] = save_to_gfs
+            
+        validation_params = {
+            'pred_error': pred_error_val_param,
+        }
 
     params = {
             'save_params': save_params,

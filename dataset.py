@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import time
 import random
@@ -36,6 +37,13 @@ class FrameDataset():
             print("Number of batches per epoch: {}".format(self.num_batch_per_epoch))
         return video_list
     
+    def valid_num_step(self):
+        """ Get the total number of steps for validation params. """
+        num_step = 0
+        for video in self.video_list:
+            num_step += video[2] - 1
+        return num_step
+
     def _get_frames_at_step(self, batch, step):
         """ Returns the step-th resized & normalized frame of each video in the batch
         Args:
@@ -78,3 +86,29 @@ class FrameDataset():
             batch = video_list[batch_i*self.batch_size:(batch_i+1)*self.batch_size]
             for frame_i in range(self.num_frames+1): # 1 more initialization step
                 yield self._get_frames_at_step(batch, frame_i)
+    
+    def _get_frame_at_step(self, vd_name, vd_index, vd_length, step):
+        """ Returns the step-th resized & normalized frame of each video in the batch
+        Args:
+            step: starts from 0
+        Returns:
+            An array in size [height, width, 3]
+        """
+        frame_path = os.path.join(self.frame_root, vd_name, 
+                                  self.file_tmpl.format(step+1))
+        # Preprocessing
+        image = Image.open(frame_path)
+        image = image.resize((self.crop_size, self.crop_size), Image.ANTIALIAS)
+        if self.flip_frame:
+            image = image.transpose(Image.FLIP_TOP_BOTTOM)
+        image = np.array(image)
+        image = np.subtract(image, IMAGENET_MEAN)
+
+        return (np.expand_dims(image, axis=0), np.expand_dims(vd_index, axis=0), step, step+1==vd_length)
+
+    def valid_single_frame_generator(self):
+        """Yeild one single frame with its index at each time step."""
+        for video in self.video_list:
+            vd_index, vd_name, vd_length = video
+            for frame_i in range(vd_length):
+                yield self._get_frame_at_step(vd_name, vd_index, vd_length, frame_i)

@@ -12,13 +12,14 @@ from tensorflow.contrib import slim
 
 import pdb
 
-meta_path = "/data4/shetw/breakfast/metafiles/videos_test_split1.meta"
+meta_path = "/data4/shetw/breakfast/metafiles/videos_test_split1_sample.meta"
 frame_root = "/data4/shetw/breakfast/extracted_frames"
 batch_size = 1
 
 PURE_TEST = True
 train = False
-restore_path = 'saved_models/PPF-TF-lr6-Epoch0-Batch-5'
+# restore_path = 'saved_models/PPF-TF-lr6-Epoch0-Batch-5'
+restore_path = '/data4/shetw/breakfast/saved_models/Zacks_LSTM_AL_S1_1'
 pred_error_root = '/data4/shetw/breakfast/pred_errors_my_tf'
 
 IMAGENET_MEAN = np.array([123.68, 116.779, 103.939])
@@ -151,6 +152,7 @@ with tf.Session() as sess:
         error_file_path = os.path.join(pred_error_root, video[0][0]+'.txt')
         error_file = open(error_file_path, 'w+')
 
+        np.random.seed(6) # Test my reimplementation
         prev_state_np = np.random.uniform(low=-0.5, high=0.5, \
                         size=(batch_size, 2*num_units))
         prev_frame_np = get_frames_at_step(video, 0)
