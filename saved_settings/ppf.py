@@ -3,13 +3,14 @@ def ppf_basic(args):
     args['db_name'] = 'ppf'
     args['col_name'] = 'breakfast'
     args['cache_dir'] = '/data4/shetw/tfutils_cache'
+    args['num_frames'] = 1500 # Breakfast
     return args
 
 def batch_size(args):
     args['batch_size'] = 64
     args['test_batch_size'] = 32
-    args['fre_filter'] = 10000
-    args['fre_cache_filter'] = 5000
+    args['fre_filter'] = args['num_frames'] * 2
+    args['fre_cache_filter'] = args['num_frames']
     args['fre_valid'] = 50000000
     return args
 
@@ -29,7 +30,7 @@ def ppf_pretrained_vgg(): # Node07-1
     args = batch_size(args)
 
     args['exp_id'] = 'ppf_test'
-    args['from_ckpt'] = '/home/shetw/projects/EventSegmentation/saved_models/vgg_16.ckpt'
+    # args['from_ckpt'] = '/home/shetw/projects/EventSegmentation/saved_models/vgg_16.ckpt'
     # For testing my reimplementation    
     # args['from_ckpt'] = '/home/shetw/projects/EventSegmentation/saved_models/Zacks_LSTM_AL_S1_1'
     # args['shuffle'] = False
@@ -42,7 +43,7 @@ def ppf_pretrained_vgg_lr8(): # Node07-2
     args = batch_size(args)
 
     args['exp_id'] = 'ppf_lr8'
-    args['from_ckpt'] = '/home/shetw/projects/EventSegmentation/saved_models/vgg_16.ckpt'
+    # args['from_ckpt'] = '/home/shetw/projects/EventSegmentation/saved_models/vgg_16.ckpt'
     args['batch_size'] = 40
     args['init_lr'] = 1e-8
     return args
@@ -58,14 +59,14 @@ def ppf_pretrained_vgg_lr6(): # Node08-3
     args['init_lr'] = 1e-6
     return args
     
-def ppf_pretrained_vgg_lr7():
+def ppf_pretrained_vgg_lr7(): # Node07-4
     args = {}
     args = ppf_basic(args)
     args = batch_size(args)
 
     args['exp_id'] = 'ppf_lr7'
     args['from_ckpt'] = '/data4/shetw/breakfast/saved_models/vgg_16.ckpt'
-    args['batch_size'] = 40
+    args['batch_size'] = 128
     args['init_lr'] = 1e-7
     # Test multi-gpu
     # args['from_ckpt'] = '/data4/shetw/breakfast/saved_models/Zacks_LSTM_AL_S1_1'
@@ -75,8 +76,8 @@ def ppf_pretrained_vgg_lr7():
 def ppf_train_infant(): # Node08-1
     args = {}
     args = ppf_basic(args)
-    args = batch_size(args)
     args = infant_data(args)
+    args = batch_size(args)
 
     args['exp_id'] = 'train'
     args['from_ckpt'] = '/data4/shetw/breakfast/saved_models/vgg_16.ckpt'
@@ -86,11 +87,25 @@ def ppf_train_infant(): # Node08-1
 def ppf_train_infant_lr7(): # Node08-2
     args = {}
     args = ppf_basic(args)
-    args = batch_size(args)
     args = infant_data(args)
+    args = batch_size(args)
 
     args['exp_id'] = 'train_lr7'
     args['from_ckpt'] = '/data4/shetw/breakfast/saved_models/vgg_16.ckpt'
     args['batch_size'] = 40
     args['init_lr'] = 1e-7
+    return args
+
+def ppf_train_infant_lr58(): # Node07-3
+    args = {}
+    args = ppf_basic(args)
+    args = infant_data(args)
+    args = batch_size(args)
+
+    args['exp_id'] = 'train_lr58'
+    args['from_ckpt'] = '/data4/shetw/breakfast/saved_models/vgg_16.ckpt'
+    args['meta_path'] = '/data4/shetw/infant_headcam/metafiles/infant_train_ppf.meta'
+    args['frame_root'] = '/data4/shetw/infant_headcam/jpgs_extracted'
+    args['batch_size'] = 128
+    args['init_lr'] = 5e-8
     return args

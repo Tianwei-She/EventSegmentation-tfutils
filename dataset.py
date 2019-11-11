@@ -11,7 +11,9 @@ IMAGENET_MEAN = np.array([123.68, 116.779, 103.939])
 class FrameDataset():
     def __init__(
             self, frame_root, meta_path, 
-            batch_size, num_frames, flip_frame=False, file_tmpl="Frame_{:06d}.jpg", crop_size=224, shuffle=False):
+            batch_size, num_frames, flip_frame=False, 
+            file_tmpl="Frame_{:06d}.jpg", 
+            crop_size=224, shuffle=False):
         
         self.frame_root = frame_root
         self.meta_path = meta_path
@@ -31,6 +33,7 @@ class FrameDataset():
                                 for i, line in enumerate(lines)]
             self.num_batch_per_epoch = len(video_list)//self.batch_size
             print("Number of videos: {}".format(len(video_list)))
+            print("Number of batches per epoch: {}".format(self.num_batch_per_epoch))
         return video_list
     
     def _get_frames_at_step(self, batch, step):

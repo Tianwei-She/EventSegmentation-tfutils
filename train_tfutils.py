@@ -288,9 +288,12 @@ def get_params_from_arg(args):
         learning_rate_params, optimizer_params = {}, {}
     else:
         # Data enumerator 
-        train_frame_dataset = FrameDataset(args.frame_root, args.meta_path, \
-                                     args.batch_size, args.num_frames,
-                                     file_tmpl=args.file_tmpl, shuffle=args.shuffle)
+        train_frame_dataset = FrameDataset(args.frame_root, args.meta_path,
+                                     args.batch_size, args.num_frames, 
+                                     flip_frame = args.flip_frame, 
+                                     file_tmpl=args.file_tmpl, 
+                                     crop_size=args.crop_size,
+                                     shuffle=args.shuffle)
         num_steps_per_epoch = train_frame_dataset.num_batch_per_epoch * args.num_frames
         train_frame_generator = train_frame_dataset.batch_of_frames_generator()
         train_frame_enumerator = [enumerate(train_frame_generator)]
@@ -299,6 +302,7 @@ def get_params_from_arg(args):
         train_data_param = get_train_data_param_from_arg(args)
         
         prev_emb_np, prev_state_np = [], []
+        start_step = []
         # Train_loop
         def train_loop(sess, train_targets, num_minibatches=1, **params):
             global_step_vars = [v for v in tf.global_variables() \
@@ -306,14 +310,23 @@ def get_params_from_arg(args):
             assert len(global_step_vars) == 1
             global_step = sess.run(global_step_vars[0])
 
+            # Record the starting step
+            if len(start_step) == 0:
+                start_step.append(global_step)
+            curr_global_step = global_step - start_step[0]
+
             # Update the data_loader for each epoch
-            if global_step % num_steps_per_epoch==0 and global_step!=0:
-                train_frame_enumerator.pop()
-                train_frame_enumerator.append(enumerate(train_frame_generator))
+            if curr_global_step % num_steps_per_epoch == 0:
+                print("====== Epoch {} ======".format(int(global_step / num_steps_per_epoch)))
+                if curr_global_step != 0:
+                    train_frame_enumerator.pop()
+                    train_frame_enumerator.append(enumerate(train_frame_generator))
+                    pdb.set_trace() # Check why StopIteration after 1 epoch
             
             # Initialization of prev_emb & prev_state 
             # at the beginning of each batch
-            if global_step % args.num_frames == 0:
+            if curr_global_step % args.num_frames == 0:
+                print("--- Batch {} ---".format(int(curr_global_step / args.num_frames)))
                 _, (image, index, step) = train_frame_enumerator[0].next()
                 assert step == 0
                 assert len(prev_state_np) <= 1
@@ -328,19 +341,29 @@ def get_params_from_arg(args):
                 if len(prev_emb_np) == 1:
                     prev_emb_np.pop()
                 vgg_feed_dict = data.get_vgg_feeddict(image, index)
-                prev_emb_np.append(sess.run(vgg_emb_node[0], feed_dict=vgg_feed_dict))
+                # Try multi-gpu
+                # prev_emb_np.append(sess.run(vgg_emb_node[0], feed_dict=vgg_feed_dict)) 
+                prev_emb_list = []
+                for vgg_emb_n in vgg_emb_node:
+                    prev_emb_list.append(sess.run(vgg_emb_n, feed_dict=vgg_feed_dict)) 
+                prev_emb_np.append(np.vstack(prev_emb_list))
             
             # Normal train step  
             # Get data from the enumerator
             _, (image, index, step) = train_frame_enumerator[0].next()
-            assert global_step % args.num_frames + 1 == step
+            assert curr_global_step % args.num_frames + 1 == step
             # Feed input data and run
             # TODO: Learning rate for adaptive learning 
+            # Test multi-gpu
+            # feed_dict = data.get_feeddict(image, index, \
+            #                              prev_emb_np[0], prev_state_np[0])
             feed_dict = data.get_feeddict(image, index, \
                                           prev_emb_np[0], prev_state_np[0])
             sess_res = sess.run(train_targets+loss_node+vgg_emb_node+lstm_state_node, feed_dict=feed_dict)
-            _, vgg_emb, lstm_state = sess_res[-3], sess_res[-2], sess_res[-1] # _ is the pred errors [bs]
+            _, vgg_emb_list, lstm_state_list = sess_res[-3*multi_gpu:-2*multi_gpu], sess_res[-2*multi_gpu:-multi_gpu], sess_res[-multi_gpu:] # _ is the pred errors [bs]
             sess_res = [sess_res[0]]
+            vgg_emb = np.vstack(vgg_emb_list)
+            lstm_state = np.vstack(lstm_state_list)
             prev_emb_np[0], prev_state_np[0] = vgg_emb, lstm_state   
             return sess_res
             
