@@ -9,9 +9,9 @@ def ppf_basic(args):
 def batch_size(args):
     args['batch_size'] = 64
     args['test_batch_size'] = 32
-    args['fre_filter'] = args['num_frames'] * 2
-    args['fre_cache_filter'] = args['num_frames']
-    args['fre_valid'] = 50000000
+    args['fre_filter'] = 10000
+    args['fre_cache_filter'] = 5000
+    args['fre_valid'] = 50000000 # No validation during training
     return args
 
 def infant_data(args):
@@ -22,6 +22,38 @@ def infant_data(args):
     args['num_frames'] = 22500 # 15mins in 25fps
     args['file_tmpl'] = "{:06d}.jpg"
     args['flip_frame'] = True
+    return args
+
+def alice_data(args):
+    args['col_name'] = 'alice'
+    args['data_len'] = 338
+    args['meta_path'] = '/data4/shetw/infant_headcam/metafiles/infant_alice.meta'
+    args['frame_root'] = '/data4/shetw/infant_headcam/jpgs_extracted'
+    args['num_frames'] = 37500 # 25 mins in 25fps
+    args['file_tmpl'] = "{:06d}.jpg"
+    args['flip_frame'] = True
+    return args
+
+def sam_data(args):
+    args['col_name'] = 'sam'
+    args['data_len'] = 903
+    args['meta_path'] = '/data4/shetw/infant_headcam/metafiles/infant_sam.meta'
+    args['frame_root'] = '/data4/shetw/infant_headcam/jpgs_extracted'
+    args['num_frames'] = 22500 # 15 mins in 25fps
+    args['file_tmpl'] = "{:06d}.jpg"
+    args['flip_frame'] = True
+    return args
+
+def ppf_test_random():
+    args = {}
+    args = ppf_basic(args)
+    args = batch_size(args)
+
+    args['col_name'] = 'breakfast_loss'
+    args['exp_id'] = 'ppf_test_sample_ramdom'
+    args['pure_test'] = True
+    args['from_ckpt'] = '/home/shetw/projects/EventSegmentation/saved_models/vgg_16.ckpt'
+    args['test_meta_path'] = '/data4/shetw/breakfast/metafiles/videos_test_split1_sample.meta'
     return args
 
 def ppf_test_lr6(): # Node07-1
@@ -44,6 +76,18 @@ def ppf_test_lr7(): # Node07-4
     args['col_name'] = 'breakfast_loss'
     args['exp_id'] = 'ppf_test_sample_lr7'
     args['load_exp'] = 'ppf/breakfast/ppf_lr7'
+    args['pure_test'] = True
+    args['test_meta_path'] = '/data4/shetw/breakfast/metafiles/videos_test_split1_sample.meta'
+    return args
+
+def ppf_test_lr59(): # Node07-4
+    args = {}
+    args = ppf_basic(args)
+    args = batch_size(args)
+
+    args['col_name'] = 'breakfast_loss'
+    args['exp_id'] = 'ppf_test_sample_lr59'
+    args['load_exp'] = 'ppf/breakfast/ppf_test'
     args['pure_test'] = True
     args['test_meta_path'] = '/data4/shetw/breakfast/metafiles/videos_test_split1_sample.meta'
     return args
@@ -132,4 +176,135 @@ def ppf_train_infant_lr58(): # Node07-3
     args['frame_root'] = '/data4/shetw/infant_headcam/jpgs_extracted'
     args['batch_size'] = 128
     args['init_lr'] = 5e-8
+    return args
+
+def ppf_train_alice(): # Node07-1
+    args = {}
+    args = ppf_basic(args)
+    args = alice_data(args)
+    args = batch_size(args)
+
+    args['exp_id'] = 'train_lr7'
+    args['from_ckpt'] = '/data4/shetw/breakfast/saved_models/vgg_16.ckpt'
+    args['pure_train'] = True
+    args['batch_size'] = 128
+    args['init_lr'] = 1e-7
+    return args
+
+def ppf_train_sam(): 
+    args = {}
+    args = ppf_basic(args)
+    args = sam_data(args)
+    args = batch_size(args)
+
+    args['exp_id'] = 'train_lr7'
+    args['from_ckpt'] = '/data4/shetw/breakfast/saved_models/vgg_16.ckpt'
+    args['pure_train'] = True
+    args['batch_size'] = 128
+    args['init_lr'] = 1e-7
+    return args
+
+def ppf_test_infant_lr7(): # Node 07-1, load from 65000 step
+    args = {}
+    args = ppf_basic(args)
+    args = infant_data(args)
+    args = batch_size(args)
+
+    args['col_name'] = 'infant_loss'
+    args['exp_id'] = 'ppf_test_sample_lr7'
+    args['load_exp'] = 'ppf/infant/train_lr7'
+    args['pure_test'] = True
+    args['test_meta_path'] = '/data4/shetw/infant_headcam/metafiles/infant_test_ppf_sample.meta'
+    args['frame_root'] = '/data4/shetw/infant_headcam/jpgs_extracted'
+    args['flip_frame'] = False # Not effective during training
+    return args
+
+def ppf_test_infant_lr7_a2(): # Node 07-7, load from 65000 step
+    args = {}
+    args = ppf_basic(args)
+    args = infant_data(args)
+    args = batch_size(args)
+
+    args['col_name'] = 'infant_loss'
+    args['exp_id'] = 'ppf_test_sample_lr7_a2'
+    args['load_exp'] = 'ppf/infant/train_lr7'
+    args['pure_test'] = True
+    args['test_meta_path'] = '/data4/shetw/infant_headcam/metafiles/infant_test_ppf_sample_a2.meta'
+    args['frame_root'] = '/data4/shetw/infant_headcam/jpgs_extracted'
+    args['flip_frame'] = False # Not effective during training
+    return args
+
+def ppf_test_infant_lr7_a3(): # Node 07-1, load from 65000 step
+    args = {}
+    args = ppf_basic(args)
+    args = infant_data(args)
+    args = batch_size(args)
+
+    args['col_name'] = 'infant_loss'
+    args['exp_id'] = 'ppf_test_sample_lr7_a3'
+    args['load_exp'] = 'ppf/infant/train_lr7'
+    args['pure_test'] = True
+    args['test_meta_path'] = '/data4/shetw/infant_headcam/metafiles/infant_test_ppf_sample_a3.meta'
+    args['frame_root'] = '/data4/shetw/infant_headcam/jpgs_extracted'
+    args['flip_frame'] = False # Not effective during training
+    return args
+
+def ppf_test_infant_lr7_s1(): # Node 07-5, load from 65000 step
+    args = {}
+    args = ppf_basic(args)
+    args = infant_data(args)
+    args = batch_size(args)
+
+    args['col_name'] = 'infant_loss'
+    args['exp_id'] = 'ppf_test_sample_lr7_s1'
+    args['load_exp'] = 'ppf/infant/train_lr7'
+    args['pure_test'] = True
+    args['test_meta_path'] = '/data4/shetw/infant_headcam/metafiles/infant_test_ppf_sample_s1.meta'
+    args['frame_root'] = '/data4/shetw/infant_headcam/jpgs_extracted'
+    args['flip_frame'] = False # Not effective during training
+    return args
+
+def ppf_test_infant_lr7_s2(): # Node 07-6, load from 65000 step
+    args = {}
+    args = ppf_basic(args)
+    args = infant_data(args)
+    args = batch_size(args)
+
+    args['col_name'] = 'infant_loss'
+    args['exp_id'] = 'ppf_test_sample_lr7_s2'
+    args['load_exp'] = 'ppf/infant/train_lr7'
+    args['pure_test'] = True
+    args['test_meta_path'] = '/data4/shetw/infant_headcam/metafiles/infant_test_ppf_sample_s2.meta'
+    args['frame_root'] = '/data4/shetw/infant_headcam/jpgs_extracted'
+    args['flip_frame'] = False # Not effective during training
+    return args
+
+def ppf_test_infant_lr7_s3(): # Node 07-5, load from 65000 step
+    args = {}
+    args = ppf_basic(args)
+    args = infant_data(args)
+    args = batch_size(args)
+
+    args['col_name'] = 'infant_loss'
+    args['exp_id'] = 'ppf_test_sample_lr7_s3'
+    args['load_exp'] = 'ppf/infant/train_lr7'
+    args['pure_test'] = True
+    args['test_meta_path'] = '/data4/shetw/infant_headcam/metafiles/infant_test_ppf_sample_s3.meta'
+    args['frame_root'] = '/data4/shetw/infant_headcam/jpgs_extracted'
+    args['flip_frame'] = False # Not effective during training
+    return args
+
+def ppf_test_infant_lr58(): # Node 07-4, load from 22500 step
+    args = {}
+    args = ppf_basic(args)
+    args = infant_data(args)
+    args = batch_size(args)
+
+    args['col_name'] = 'infant_loss'
+    args['exp_id'] = 'ppf_test_sample_lr58'
+    args['load_exp'] = 'ppf/infant/train_lr58'
+    args['pure_test'] = True
+    args['test_meta_path'] = '/data4/shetw/infant_headcam/metafiles/infant_test_ppf_sample.meta'
+    args['frame_root'] = '/data4/shetw/infant_headcam/jpgs_extracted'
+    args['flip_frame'] = False # Not effective during training
     return args

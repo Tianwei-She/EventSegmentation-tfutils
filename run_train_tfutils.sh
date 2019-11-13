@@ -1,1 +1,1 @@
-python train_tfutils.py --setting ppf.ppf_test_lr7 --gpu 5
+python train_tfutils.py --setting ppf.ppf_test_random --gpu 1
